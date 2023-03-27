@@ -10,3 +10,10 @@ dependencies:
   - rasterio
   - pyepsg
   - folium
+  - python
+  - geopandas
+  - cartopy>=0.21
+  - notebook
+  - rasterio
+  - pyepsg
+  - folium
