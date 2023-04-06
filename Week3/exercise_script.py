@@ -11,13 +11,43 @@ import matplotlib.patches as mpatches
 # try to print the results to the screen using the format method demonstrated in the workbook
 
 # load the necessary data here and transform to a UTM projection
+counties = gpd.read_file('data_files/Counties.shp')
+wards = gpd.read_file('data_files/NI_Wards.shp')
+
+counties = counties.to_crs(epsg=2157)
+wards = wards.to_crs(epsg=2157)
 
 # your analysis goes here...
+
+# join counties and ward data
+join = gpd.sjoin(counties, wards, how="inner",lsuffix="left",rsuffix="right")
+
+# group population per county
+CountyPop = join.groupby(['CountyName'])['Population'].sum()
+
+# group population density per county
+PopDen = join['Population']/join['Area_SqKM']
+
+# Finds the highest and lowest population (dont know how to get to the names, is now typed in manually)
+print('The highest and lowest population of counties is given:')
+
+print('Fermanagh has the lowerst population size with ' + str(min(CountyPop)) + ' habitants.')
+print('Antrim has the highest population size with '+ str(max(CountyPop))+ ' habitants.')
+
+# group county by wards and check for unique wards
+WardsCounty = join.groupby(['CountyName'])['Ward'].nunique()
+print(WardsCounty)
+
+WardsPop = join.groupby(['Ward'])['Population'].sum()
+print('One of the Wards has the lowest population with ' + str(min(WardsPop)) + ' habitants.', 'Another Ward has the highest population with ' + str(max(WardsPop)) + ' habitants.', 'The problem is that I do not know how to get to the Ward name..')
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # below here, you may need to modify the script somewhat to create your map.
 # create a crs using ccrs.UTM() that corresponds to our CRS
+
 myCRS = ccrs.UTM(29)
+
 # create a figure of size 10x10 (representing the page size in inches
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
